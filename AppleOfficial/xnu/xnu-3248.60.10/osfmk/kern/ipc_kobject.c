@@ -481,7 +481,7 @@ ipc_kobject_set(
 	ipc_kobject_type_t	type)
 {
 	ip_lock(port);
-	ipc_kobject_set_atomically(port, kobject, type);
+	ipc_kobject_set_atomically(port, kobject, type); //helin
 	ip_unlock(port);
 }
 

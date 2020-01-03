@@ -124,9 +124,9 @@ extern int cs_debug;
 extern void m_drain(void);
 
 #if VM_PRESSURE_EVENTS
-extern unsigned int memorystatus_available_pages;
-extern unsigned int memorystatus_available_pages_pressure;
-extern unsigned int memorystatus_available_pages_critical;
+extern unsigned int memorystatus_available_pages; //helin: 可用内存页
+extern unsigned int memorystatus_available_pages_pressure; //helin: 内存页压力阈值
+extern unsigned int memorystatus_available_pages_critical; //helin: 内存页危险阈值
 extern unsigned int memorystatus_frozen_count;
 extern unsigned int memorystatus_suspended_count;
 
@@ -1107,7 +1107,7 @@ mach_vm_ctl_page_free_wanted(void)
  */
 
 kern_return_t
-mach_vm_pressure_monitor(
+mach_vm_pressure_monitor( //helin
 	boolean_t	wait_for_pressure,
 	unsigned int	nsecs_monitored,
 	unsigned int	*pages_reclaimed_p,
@@ -2179,7 +2179,7 @@ vm_pageout_scan_delay:
 				flow_control.state = FCS_IDLE;
 				goto consider_inactive;
 			}
-			VM_CHECK_MEMORYSTATUS;
+			VM_CHECK_MEMORYSTATUS; //helin: 检查内存压力
 
 			if (flow_control.state != FCS_IDLE)
 				vm_pageout_scan_throttle++;
@@ -10591,7 +10591,7 @@ int  upl_ubc_alias_get(upl_t upl, uintptr_t * al, uintptr_t * al2)
 extern boolean_t vm_compressor_low_on_space(void);
 
 boolean_t
-VM_PRESSURE_NORMAL_TO_WARNING(void)	{
+VM_PRESSURE_NORMAL_TO_WARNING(void)	{ //helin: 内存压力-正常转警告
 
 	if (DEFAULT_PAGER_IS_ACTIVE || DEFAULT_FREEZER_IS_ACTIVE || DEFAULT_FREEZER_COMPRESSED_PAGER_IS_SWAPLESS) {
 		

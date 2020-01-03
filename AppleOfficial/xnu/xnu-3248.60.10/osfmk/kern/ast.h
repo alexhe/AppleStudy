@@ -57,7 +57,7 @@
  */
 
 /*
- *      kern/ast.h: Definitions for Asynchronous System Traps.
+ *      kern/ast.h: Definitions for Asynchronous System Traps. //helin : ast: Asynchronous System Traps
  */
 
 #ifndef _KERN_AST_H_

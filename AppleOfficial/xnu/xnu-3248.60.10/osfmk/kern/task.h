@@ -169,7 +169,7 @@ struct _cpu_time_qos_stats {
 #include <bank/bank_internal.h>
 #endif
 
-struct task {
+struct task { //helin: struct proc 主要偏静态的属性类成员；struct task 主要是运行时易变状态
 	/* Synchronization/destruction information */
 	decl_lck_mtx_data(,lock)		/* Task's lock */
 	uint32_t	ref_count;	/* Number of references to me */
@@ -228,7 +228,7 @@ struct task {
 	struct ipc_port *itk_gssd;	/* yet another send right */
 	struct ipc_port *itk_debug_control; /* send right for debugmode communications */
 	struct ipc_port *itk_task_access; /* and another send right */ 
-	struct ipc_port *itk_resume;	/* a receive right to resume this task */
+	struct ipc_port *itk_resume;	/* a receive right to resume this task */ //helin: resume消息端口
 	struct ipc_port *itk_registered[TASK_PORT_REGISTER_MAX];
 					/* all send rights */
 
@@ -246,15 +246,15 @@ struct task {
 	MACHINE_TASK
         
 	integer_t faults;              /* faults counter */
-        integer_t pageins;             /* pageins counter */
-        integer_t cow_faults;          /* copy on write fault counter */
-        integer_t messages_sent;       /* messages sent counter */
-        integer_t messages_received;   /* messages received counter */
-        integer_t syscalls_mach;       /* mach system call counter */
-        integer_t syscalls_unix;       /* unix system call counter */
-		uint32_t  c_switch;			   /* total context switches */
-		uint32_t  p_switch;			   /* total processor switches */
-		uint32_t  ps_switch;		   /* total pset switches */
+    integer_t pageins;             /* pageins counter */
+    integer_t cow_faults;          /* copy on write fault counter */
+    integer_t messages_sent;       /* messages sent counter */
+    integer_t messages_received;   /* messages received counter */
+    integer_t syscalls_mach;       /* mach system call counter */
+    integer_t syscalls_unix;       /* unix system call counter */
+	uint32_t  c_switch;			   /* total context switches */
+	uint32_t  p_switch;			   /* total processor switches */
+	uint32_t  ps_switch;		   /* total pset switches */
 
 	zinfo_usage_t tkm_zinfo;	/* per-task, per-zone usage statistics */
 
@@ -308,7 +308,7 @@ struct task {
 #endif
 
 	boolean_t pidsuspended; /* pid_suspend called; no threads can execute */
-	boolean_t frozen;       /* frozen; private resident pages committed to swap */
+	boolean_t frozen;       /* frozen; private resident pages committed to swap */ //helin. frozen:私有常驻(物理)内存页提交到swap交换分区
 	boolean_t changing_freeze_state;	/* in the process of freezing or thawing */
 	uint16_t policy_ru_cpu          :4,
 	         policy_ru_cpu_ext      :4,

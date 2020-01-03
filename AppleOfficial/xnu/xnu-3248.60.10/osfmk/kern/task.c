@@ -1824,6 +1824,7 @@ task_hold_locked(
 	/*
 	 *	Iterate through all the threads and hold them.
 	 */
+	//helin: 遍历所有线程，逐个hold住
 	queue_iterate(&task->threads, thread, thread_t, task_threads) {
 		thread_mtx_lock(thread);
 		thread_hold(thread);
@@ -2079,7 +2080,7 @@ task_threads(
 
 	return (KERN_SUCCESS);
 }
-
+//helin: task suspend mode:
 #define TASK_HOLD_NORMAL	0
 #define TASK_HOLD_PIDSUSPEND	1
 #define TASK_HOLD_LEGACY	2
@@ -2105,7 +2106,7 @@ place_task_hold    (
 
 	if (mode == TASK_HOLD_LEGACY)
 		task->legacy_stop_count++;
-
+	//helin: 如果stop次数为正，表示已经stop了，直接返回即可
 	if (task->user_stop_count++ > 0) {
 		/*
 		 *	If the stop count was positive, the task is
@@ -2120,8 +2121,8 @@ place_task_hold    (
 	 * single kernel-level hold).  We then wait for the threads
 	 * to stop executing user code.
 	 */
-	task_hold_locked(task);
-	task_wait_locked(task, FALSE);
+	task_hold_locked(task); //helin: hold task的所有线程
+	task_wait_locked(task, FALSE); //helin: 等待除自己外的所有线程stop
 	
 	return (KERN_SUCCESS);
 }
@@ -2225,7 +2226,7 @@ task_suspend(
 		task->itk_resume = ipc_port_alloc_kernel();
 		if (!IP_VALID(task->itk_resume))
 			panic("failed to create resume port");
-		ipc_kobject_set(task->itk_resume, (ipc_kobject_t)task, IKOT_TASK_RESUME);
+		ipc_kobject_set(task->itk_resume, (ipc_kobject_t)task, IKOT_TASK_RESUME); //helin: port 表示 resume类型的task kobj
 	}
 
 	port = task->itk_resume;
@@ -2246,7 +2247,7 @@ task_suspend(
 	/*
 	 * place a legacy hold on the task.
 	 */
-	kr = place_task_hold(task, TASK_HOLD_LEGACY);
+	kr = place_task_hold(task, TASK_HOLD_LEGACY);//helin: legacy-mode stop task
 	if (kr != KERN_SUCCESS) {
 		task_unlock(task);
 		ipc_port_release_send(send);
@@ -2292,7 +2293,7 @@ task_resume(
 
 	/* release a legacy task hold */
 	task_lock(task);
-	kr = release_task_hold(task, TASK_HOLD_LEGACY);
+	kr = release_task_hold(task, TASK_HOLD_LEGACY); //helin: 释放legacy-mode的task的约束
 	task_unlock(task);
 
 	is_write_lock(space);
@@ -2333,7 +2334,7 @@ task_suspend_internal(task_t task)
 		return (KERN_INVALID_ARGUMENT);
 
 	task_lock(task);
-	kr = place_task_hold(task, TASK_HOLD_NORMAL);
+	kr = place_task_hold(task, TASK_HOLD_NORMAL); //helin: normal-mode下stop task
 	task_unlock(task);
 	return (kr);
 }
@@ -2464,9 +2465,9 @@ task_pidsuspend_locked(task_t task)
 		goto out;
 	}
 
-	task->pidsuspended = TRUE;
+	task->pidsuspended = TRUE; //helin. 挂起进程task
 
-	kr = place_task_hold(task, TASK_HOLD_PIDSUSPEND);
+	kr = place_task_hold(task, TASK_HOLD_PIDSUSPEND); //
 	if (kr != KERN_SUCCESS) {
 		task->pidsuspended = FALSE;
 	}
@@ -2488,7 +2489,7 @@ task_pidsuspend(
 	register task_t		task)
 {
 	kern_return_t	 kr;
-    
+    //helin: only user task can suspend
 	if (task == TASK_NULL || task == kernel_task)
 		return (KERN_INVALID_ARGUMENT);
 
@@ -3983,7 +3984,7 @@ PROC_CROSSED_HIGH_WATERMARK__SEND_EXC_RESOURCE_AND_SUSPEND(int max_footprint_mb)
 		procname = proc_name_address(current_task()->bsd_info);
 #endif
 
-	if (hwm_user_cores) {
+	if (hwm_user_cores) { //helin: memory高水位,需要coredump
 		int				error;
 		uint64_t		starttime, end;
 		clock_sec_t		secs = 0;
@@ -3995,6 +3996,7 @@ PROC_CROSSED_HIGH_WATERMARK__SEND_EXC_RESOURCE_AND_SUSPEND(int max_footprint_mb)
 		 * be filling up the disk; and ignore the core size resource limit for this
 		 * core file.
 		 */
+		//helin: 抓取coredump，之后文件系统要至少还剩HWM_USERCORE_MINSPACE（250） MB空间
 		if ((error = coredump(current_task()->bsd_info, HWM_USERCORE_MINSPACE, COREDUMP_IGNORE_ULIMIT)) != 0) {
 			printf("couldn't take coredump of %s[%d]: %d\n", procname, pid, error);
 		}

@@ -189,8 +189,8 @@ struct proc;
  * which might be addressible only on a processor on which the process
  * is running.
  */
-struct	proc {
-	LIST_ENTRY(proc) p_list;		/* List of all processes. */
+struct	proc { //helin: struct proc 主要偏静态的属性类成员；struct task 主要是运行时易变状态
+	LIST_ENTRY(proc) p_list;		/* List of all processes. */ //helin. 双向链表
 
 	pid_t		p_pid;			/* Process identifier. (static)*/
 	void * 		task;			/* corresponding task (static)*/
@@ -213,9 +213,9 @@ struct	proc {
 	char		p_kdebug;		/* P_KDEBUG eq (CC)*/ 
 	char		p_btrace;		/* P_BTRACE eq (CC)*/
 
-	LIST_ENTRY(proc) p_pglist;		/* List of processes in pgrp.(PGL) */
-	LIST_ENTRY(proc) p_sibling;		/* List of sibling processes. (LL)*/
-	LIST_HEAD(, proc) p_children;		/* Pointer to list of children. (LL)*/
+	LIST_ENTRY(proc) p_pglist;		/* List of processes in pgrp.(PGL) */ //helin: 进程组？
+	LIST_ENTRY(proc) p_sibling;		/* List of sibling processes. (LL)*/ //helin: 兄弟进程？
+	LIST_HEAD(, proc) p_children;		/* Pointer to list of children. (LL)*/ //helin: 子进程?
 	TAILQ_HEAD( , uthread) p_uthlist; 	/* List of uthreads  (PL) */
 
 	LIST_ENTRY(proc) p_hash;		/* Hash chain. (LL)*/

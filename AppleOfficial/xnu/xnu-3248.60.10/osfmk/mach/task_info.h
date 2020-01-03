@@ -263,9 +263,9 @@ typedef struct task_extmod_info	*task_extmod_info_t;
 
 
 #define MACH_TASK_BASIC_INFO     20         /* always 64-bit basic info */
-struct mach_task_basic_info {
+struct mach_task_basic_info { //helin
         mach_vm_size_t  virtual_size;       /* virtual memory size (bytes) */
-        mach_vm_size_t  resident_size;      /* resident memory size (bytes) */
+        mach_vm_size_t  resident_size;      /* resident memory size (bytes) */ //helin: 常驻内存size
         mach_vm_size_t  resident_size_max;  /* maximum resident memory size (bytes) */
         time_value_t    user_time;          /* total user run time for
                                                terminated threads */

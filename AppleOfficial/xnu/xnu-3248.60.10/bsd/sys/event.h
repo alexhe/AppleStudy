@@ -381,7 +381,7 @@ typedef enum vm_pressure_level {
         kVMPressureWarning  = 1,
         kVMPressureUrgent   = 2,
         kVMPressureCritical = 3,
-} vm_pressure_level_t;
+} vm_pressure_level_t; //helin: 内存压力4个等级
 
 #endif
 

@@ -406,7 +406,7 @@ uint64_t get_task_phys_footprint(task_t task)
 	
 	ret = ledger_get_entries(task->ledger, task_ledgers.phys_footprint, &credit, &debit);
 	if (KERN_SUCCESS == ret) {
-		return (credit - debit);
+		return (credit - debit); //helin: credit-信用，debit-借记
 	}
 
 	return 0;

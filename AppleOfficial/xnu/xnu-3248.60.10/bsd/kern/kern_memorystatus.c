@@ -236,7 +236,7 @@ static int memorystatus_list_count = 0;
 typedef struct memstat_bucket {
     TAILQ_HEAD(, proc) list;
     int count;
-} memstat_bucket_t;
+} memstat_bucket_t; //helin
 
 memstat_bucket_t memstat_bucket[MEMSTAT_BUCKET_COUNT];
 
@@ -718,8 +718,8 @@ SYSCTL_PROC(_debug, OID_AUTO, jetsam_diagnostic_mode, CTLTYPE_INT|CTLFLAG_RW|CTL
 SYSCTL_UINT(_kern, OID_AUTO, memorystatus_jetsam_policy_offset_pages_diagnostic, CTLFLAG_RW|CTLFLAG_LOCKED, &memorystatus_jetsam_policy_offset_pages_diagnostic, 0, "");
 
 #if VM_PRESSURE_EVENTS
-
-SYSCTL_UINT(_kern, OID_AUTO, memorystatus_available_pages_pressure, CTLFLAG_RW|CTLFLAG_LOCKED, &memorystatus_available_pages_pressure, 0, "");
+//helin: 内存页压力阈值设置
+SYSCTL_UINT(_kern, OID_AUTO, memorystatus_available_pages_pressure, CTLFLAG_RW|CTLFLAG_LOCKED, &memorystatus_available_pages_pressure, 0, ""); //helin: system-call 设置内存页压力初始值
 
 
 /*
@@ -1162,7 +1162,7 @@ vm_wake_compactor_swapper(void);
 static int
 jetsam_do_kill(proc_t p, int jetsam_flags) {
 	int error = 0;
-	error = exit1_internal(p, W_EXITCODE(0, SIGKILL), (int *)NULL, FALSE, FALSE, jetsam_flags);
+	error = exit1_internal(p, W_EXITCODE(0, SIGKILL), (int *)NULL, FALSE, FALSE, jetsam_flags); //helin: 发送SIGKILL给进程p
 	return(error);
 }
 
@@ -1195,7 +1195,7 @@ memorystatus_do_kill(proc_t p, uint32_t cause) {
 		case kMemorystatusKilledPerProcessLimit:	jetsam_flags |= P_JETSAM_PID; break;
 		case kMemorystatusKilledIdleExit:		jetsam_flags |= P_JETSAM_IDLEEXIT; break;
 	}
-	error = jetsam_do_kill(p, jetsam_flags);
+	error = jetsam_do_kill(p, jetsam_flags); //helin: jetsam kill 进程p
 
 	KERNEL_DEBUG_CONSTANT( (BSDDBG_CODE(DBG_BSD_MEMSTAT, BSD_MEMSTAT_DO_KILL)) | DBG_FUNC_END, 
 			       victim_pid, cause, vm_page_free_count, error, 0);
@@ -2429,7 +2429,7 @@ kill_idle_exit_proc(void)
 #if CONFIG_JETSAM
 static void
 memorystatus_thread_wake(void) {
-	thread_wakeup((event_t)&memorystatus_wakeup);
+	thread_wakeup((event_t)&memorystatus_wakeup); //helin: wakeup thread 
 }
 #endif /* CONFIG_JETSAM */
 
@@ -2441,14 +2441,14 @@ memorystatus_thread_block(uint32_t interval_ms, thread_continue_t continuation)
 	if (interval_ms) {
 		assert_wait_timeout(&memorystatus_wakeup, THREAD_UNINT, interval_ms, 1000 * NSEC_PER_USEC);
 	} else {
-		assert_wait(&memorystatus_wakeup, THREAD_UNINT);
+		assert_wait(&memorystatus_wakeup, THREAD_UNINT); //helin: wait wakeup for event:memorystatus_wakeup
 	}
 	
 	return thread_block(continuation);   
 }
 
 static void
-memorystatus_thread(void *param __unused, wait_result_t wr __unused)
+memorystatus_thread(void *param __unused, wait_result_t wr __unused) //helin: 内存压力监控线程
 {
 	static boolean_t is_vm_privileged = FALSE;
 
@@ -2483,7 +2483,7 @@ memorystatus_thread(void *param __unused, wait_result_t wr __unused)
 		if (vm_restricted_to_single_processor == TRUE)
 			thread_vm_bind_group_add();
 
-		memorystatus_thread_block(0, memorystatus_thread);
+		memorystatus_thread_block(0, memorystatus_thread); //helin: block等待触发
 	}
 	
 #if CONFIG_JETSAM
@@ -2504,7 +2504,7 @@ memorystatus_thread(void *param __unused, wait_result_t wr __unused)
 	 * we target the least recently used process in order of increasing jetsam priority (exception: the FG band).
 	 */
 	while (is_thrashing(kill_under_pressure_cause) ||
-	       memorystatus_available_pages <= memorystatus_available_pages_pressure) {
+	       memorystatus_available_pages <= memorystatus_available_pages_pressure) { //helin: 一直循环杀到内存没压力
 		boolean_t killed;
 		int32_t priority;
 		uint32_t cause;
@@ -2517,11 +2517,11 @@ memorystatus_thread(void *param __unused, wait_result_t wr __unused)
 
 #if LEGACY_HIWATER
 		/* Highwater */
-		killed = memorystatus_kill_hiwat_proc(&errors);
+		killed = memorystatus_kill_hiwat_proc(&errors); //helin: 真实系统中，比较难触发 高水位
 		if (killed) {
 			hwm_kill++;
 			post_snapshot = TRUE;
-			goto done;
+			goto done;//helin: high-water kill成功
 		} else {
 			memorystatus_hwm_candidates = FALSE;
 		}
@@ -2543,7 +2543,7 @@ memorystatus_thread(void *param __unused, wait_result_t wr __unused)
 			break;
 		}
 #endif
-		if (memorystatus_jld_enabled == TRUE) {
+		if (memorystatus_jld_enabled == TRUE) { //helin: jld = jetsam loop detection
 
 			/*
 			 * Jetsam Loop Detection: attempt to detect
@@ -2600,7 +2600,7 @@ memorystatus_thread(void *param __unused, wait_result_t wr __unused)
 					}
 				}
 
-				killed = memorystatus_kill_top_process_aggressive(
+				killed = memorystatus_kill_top_process_aggressive( //helin: 激进式kill进程
 					TRUE, 
 					kMemorystatusKilledVMThrashing,
 					jld_eval_aggressive_count, 
@@ -2611,13 +2611,13 @@ memorystatus_thread(void *param __unused, wait_result_t wr __unused)
 				if (killed) {
 					/* Always generate logs after aggressive kill */
 					post_snapshot = TRUE;
-					goto done;
+					goto done; //helin: 激进式 kill成功
 				} 
 			} 
 		}
 		
 		/* LRU */
-		killed = memorystatus_kill_top_process(TRUE, sort_flag, cause, &priority, &errors);
+		killed = memorystatus_kill_top_process(TRUE, sort_flag, cause, &priority, &errors); //helin: lru kill进程
 		sort_flag = FALSE;
 
 		if (killed) {
@@ -2641,9 +2641,9 @@ memorystatus_thread(void *param __unused, wait_result_t wr __unused)
 					 */
 				}
 			}
-			goto done;
+			goto done; //helin: lru kill成功
 		}
-		
+		//helin: 没进程可杀，触发内核panic，挂掉
 		if (memorystatus_available_pages <= memorystatus_available_pages_critical) {
 			/* Under pressure and unable to kill a process - panic */
 			panic("memorystatus_jetsam_thread: no victim! available pages:%d\n", memorystatus_available_pages);
@@ -2657,10 +2657,10 @@ done:
 		 * compressor.
 		 */
 		if (is_thrashing(kill_under_pressure_cause)) {
-			kill_under_pressure_cause = 0;
+			kill_under_pressure_cause = 0; //helin: thrash的杀够了
 			vm_thrashing_jetsam_done();
 		}
-	}
+	}//helin: while-kill
 
 	kill_under_pressure_cause = 0;
 	
@@ -2706,7 +2706,7 @@ done:
 
 #endif /* CONFIG_JETSAM */
 
-	memorystatus_thread_block(0, memorystatus_thread);
+	memorystatus_thread_block(0, memorystatus_thread); //helin: 杀完一波,休眠
 }
 
 #if !CONFIG_JETSAM
@@ -2906,7 +2906,7 @@ void memorystatus_pages_update(unsigned int pages_avail)
 	if (memorystatus_available_pages <= memorystatus_available_pages_pressure) {
 
 		if (memorystatus_hwm_candidates || (memorystatus_available_pages <= memorystatus_available_pages_critical)) {
-			memorystatus_thread_wake();
+			memorystatus_thread_wake(); //helin: 内存页更新后，如果可用页不够，就唤醒killer线程
 		}
 	}
 #else /* VM_PRESSURE_EVENTS */
@@ -2917,13 +2917,13 @@ void memorystatus_pages_update(unsigned int pages_avail)
 	    return;
 	}
 	
-	critical = (pages_avail < memorystatus_available_pages_critical) ? TRUE : FALSE;
+	critical = (pages_avail < memorystatus_available_pages_critical) ? TRUE : FALSE; //helin: 有效页低于危险页数量，唤醒killer线程
 	delta = ((pages_avail >= (memorystatus_available_pages + memorystatus_delta)) 
                 || (memorystatus_available_pages >= (pages_avail + memorystatus_delta))) ? TRUE : FALSE;
         
 	if (critical || delta) {
   		memorystatus_level = memorystatus_available_pages * 100 / atop_64(max_mem);
-		memorystatus_thread_wake();
+		memorystatus_thread_wake(); //helin: 唤醒killer线程
 	}
 #endif /* VM_PRESSURE_EVENTS */
 }
@@ -3277,7 +3277,7 @@ memorystatus_kill_top_process(boolean_t any, boolean_t sort_flag, uint32_t cause
 					    aPid, (p->p_comm ? p->p_comm : "(unknown)"),
 					       jetsam_kill_cause_name[cause], aPid_ep, memorystatus_available_pages);
 
-					killed = memorystatus_do_kill(p, cause);
+					killed = memorystatus_do_kill(p, cause); //helin: kill 进程p
 
 					/* Success? */
 					if (killed) {
@@ -3600,7 +3600,7 @@ memorystatus_kill_hiwat_proc(uint32_t *errors)
 #endif
 
 		footprint = (uint32_t)(get_task_phys_footprint(p->task) / (1024 * 1024));
-		skip = (((int32_t)footprint) <= p->p_memstat_memlimit);
+		skip = (((int32_t)footprint) <= p->p_memstat_memlimit); //helin: footprint没到限额
 
 #if DEVELOPMENT || DEBUG
 		if (!skip && (memorystatus_jetsam_policy & kPolicyDiagnoseActive)) {
@@ -3722,7 +3722,7 @@ memorystatus_kill_process_async(pid_t victim_pid, uint32_t cause) {
 	}
     
 	kill_under_pressure_cause = cause;
-	memorystatus_thread_wake();
+	memorystatus_thread_wake(); //helin: 异步killer就唤醒status线程
 	return TRUE;
 }
 

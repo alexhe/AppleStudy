@@ -202,7 +202,7 @@ collectth_state(thread_t th_act, void *tirp)
  */
 #define	MAX_TSTATE_FLAVORS	10
 int
-coredump(proc_t core_proc, uint32_t reserve_mb, int coredump_flags)
+coredump(proc_t core_proc, uint32_t reserve_mb, int coredump_flags) //helin
 {
 /* Begin assumptions that limit us to only the current process */
 	vfs_context_t ctx = vfs_context_current();

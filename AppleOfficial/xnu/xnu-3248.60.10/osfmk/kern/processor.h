@@ -146,7 +146,7 @@ extern queue_head_t		tasks, terminated_tasks, threads; /* Terminated tasks are O
 extern int				tasks_count, terminated_tasks_count, threads_count;
 decl_lck_mtx_data(extern,tasks_threads_lock)
 
-struct processor {
+struct processor { //helin: processor_t
 	queue_chain_t		processor_queue;/* idle/active queue link,
 										 * MUST remain the first element */
 	int					state;			/* See below */

@@ -737,7 +737,7 @@ extern void vm_pressure_response(void);
 extern void memorystatus_pages_update(unsigned int pages_avail);
 
 #define VM_CHECK_MEMORYSTATUS do { \
-	memorystatus_pages_update(		\
+	memorystatus_pages_update(		\  //helin: 统计可用页，更新
       		vm_page_pageable_external_count + \
 		vm_page_free_count +		\
       		(VM_DYNAMIC_PAGING_ENABLED(memory_manager_default) ? 0 : vm_page_purgeable_count) \

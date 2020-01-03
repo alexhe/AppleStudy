@@ -185,7 +185,7 @@ void
 thread_hold(
 	register thread_t	thread)
 {
-	if (thread->suspend_count++ == 0) {
+	if (thread->suspend_count++ == 0) { //helin: 如果已经挂起，直接返回
 		install_special_handler(thread);
 		if (thread->started)
 			thread_wakeup_one(&thread->suspend_count);
@@ -752,15 +752,15 @@ install_special_handler_locked(
 
 	thread_ast_set(thread, AST_APC);
 
-	if (thread == current_thread())
+	if (thread == current_thread())//helin:如果想install handler的线程就是当前线程
 		ast_propagate(thread->ast);
 	else {
 		processor_t		processor = thread->last_processor;
-
+		//helin: 当前线程cpu还在运行当前线程
 		if (	processor != PROCESSOR_NULL					&&
 				processor->state == PROCESSOR_RUNNING		&&
 				processor->active_thread == thread			)
-			cause_ast_check(processor);
+			cause_ast_check(processor);// helin: 触发cpu检查调度
 	}
 }
 

@@ -135,10 +135,10 @@ struct ledger_template {
  */
 struct ledger_entry {
         volatile uint32_t               le_flags;
-        ledger_amount_t                 le_limit;
-        ledger_amount_t                 le_warn_level;
-        volatile ledger_amount_t        le_credit __attribute__((aligned(8)));
-        volatile ledger_amount_t        le_debit  __attribute__((aligned(8)));
+        ledger_amount_t                 le_limit; //限制额度
+        ledger_amount_t                 le_warn_level; //警告位
+        volatile ledger_amount_t        le_credit __attribute__((aligned(8)));// 信用卡
+        volatile ledger_amount_t        le_debit  __attribute__((aligned(8)));// 借记卡（存储卡）
 	union {
 		struct {
 			/*
@@ -155,12 +155,12 @@ struct ledger_entry {
 	} _le;
 } __attribute__((aligned(8)));
 
-struct ledger {
+struct ledger { //helin: 账簿
 	int			l_id;
 	struct ledger_template	*l_template;
 	int			l_refs;
 	int			l_size;
-	struct ledger_entry	*l_entries;
+	struct ledger_entry	*l_entries;//helin: 各种类型账单：物理内存账单，cpu时间等等
 };
 
 static int ledger_cnt = 0;

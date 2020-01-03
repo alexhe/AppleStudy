@@ -110,7 +110,7 @@ typedef natural_t ipc_space_refs_t;
 #define IS_INACTIVE	0x40000000	/* space is inactive */
 #define IS_GROWING	0x20000000	/* space is growing */
 
-struct ipc_space {
+struct ipc_space { //helin
 	lck_spin_t	is_lock_data;
 	ipc_space_refs_t is_bits;	/* holds refs, active, growing */
 	ipc_entry_num_t is_table_size;	/* current size of table */

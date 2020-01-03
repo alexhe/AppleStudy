@@ -105,7 +105,7 @@ typedef natural_t	ipc_kobject_type_t;
 #define IKOT_UND_REPLY			15
 #define IKOT_HOST_NOTIFY		16
 #define IKOT_HOST_SECURITY		17
-#define	IKOT_LEDGER				18
+#define	IKOT_LEDGER				18 //helin: LEDGER 账簿
 #define IKOT_MASTER_DEVICE		19
 #define IKOT_TASK_NAME			20
 #define IKOT_SUBSYSTEM			21
@@ -123,7 +123,7 @@ typedef natural_t	ipc_kobject_type_t;
 #define IKOT_AU_SESSIONPORT		33
 #define IKOT_FILEPORT			34
 #define IKOT_LABELH			35
-#define IKOT_TASK_RESUME		36
+#define IKOT_TASK_RESUME		36 //helin: 恢复task的端口event ？
 #define IKOT_VOUCHER			37
 #define IKOT_VOUCHER_ATTR_CONTROL	38
 /*

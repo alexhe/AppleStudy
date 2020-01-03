@@ -404,7 +404,7 @@ launchd_crashed_panic(proc_t p, int rv)
 void
 exit(proc_t p, struct exit_args *uap, int *retval)
 {
-	exit1(p, W_EXITCODE(uap->rval, 0), retval);
+	exit1(p, W_EXITCODE(uap->rval, 0), retval); //helin: call exit1()
 
 	thread_exception_return();
 	/* NOTREACHED */
@@ -423,7 +423,7 @@ exit1(proc_t p, int rv, int *retval)
 {
 	return exit1_internal(p, rv, retval, TRUE, TRUE, 0);
 }
-
+//helin 进程退出函数
 int
 exit1_internal(proc_t p, int rv, int *retval, boolean_t thread_can_terminate, boolean_t perf_notify,
 	       int jetsam_flags)
@@ -502,7 +502,7 @@ exit1_internal(proc_t p, int rv, int *retval, boolean_t thread_can_terminate, bo
                         }
 			proc_unlock(p);
 			
-			thread_terminate(self);
+			thread_terminate(self); //helin: 终止线程
 			if (!thread_can_terminate) {
 				return 0;
 			}

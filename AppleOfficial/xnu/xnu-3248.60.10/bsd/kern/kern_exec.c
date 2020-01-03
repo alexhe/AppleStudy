@@ -2145,7 +2145,7 @@ proc_wait_to_return()
  *		Handle posix_spawn_file_actions_t
  */
 int
-posix_spawn(proc_t ap, struct posix_spawn_args *uap, int32_t *retval)
+posix_spawn(proc_t ap, struct posix_spawn_args *uap, int32_t *retval) //helin: spawn a process
 {
 	proc_t p = ap;		/* quiet bogus GCC vfork() warning */
 	user_addr_t pid = uap->pid;
