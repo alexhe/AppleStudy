@@ -33,7 +33,7 @@
 #include <sys/time.h>
 #include <sys/proc.h>
 #include <sys/param.h>
-
+//helin: jetsam priority
 #define JETSAM_PRIORITY_REVISION                  2
 
 #define JETSAM_PRIORITY_IDLE_HEAD                -2
@@ -145,14 +145,15 @@ typedef struct memorystatus_freeze_entry {
 #define kMaxSnapshotEntries 192
 
 /* State */
-#define kMemorystatusSuspended        0x01
-#define kMemorystatusFrozen           0x02
-#define kMemorystatusWasThawed        0x04
+#define kMemorystatusSuspended        0x01 //helin: 挂起
+#define kMemorystatusFrozen           0x02 //helin: 冻结
+#define kMemorystatusWasThawed        0x04 //helin: 解冻
 #define kMemorystatusTracked          0x08
 #define kMemorystatusSupportsIdleExit 0x10
 #define kMemorystatusDirty            0x20
 
 /* Cause */
+//helin: app kill reason
 enum {
 	kMemorystatusKilled = 1,
 	kMemorystatusKilledHiwat,

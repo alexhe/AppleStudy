@@ -3809,7 +3809,7 @@ memorystatus_freeze_init(void)
 
 	lck_mtx_init(&freezer_mutex, freezer_lck_grp, NULL);
 		
-	result = kernel_thread_start(memorystatus_freeze_thread, NULL, &thread);
+	result = kernel_thread_start(memorystatus_freeze_thread, NULL, &thread); //helin: lib init call this
 	if (result == KERN_SUCCESS) {
 		thread_deallocate(thread);
 	} else {
@@ -4032,7 +4032,7 @@ memorystatus_freeze_top_process(boolean_t *memorystatus_freeze_swap_low)
 		if (!p) {
 			goto exit;
 		}
-        
+        //helin: task(process) freeze
 		kr = task_freeze(p->task, &purgeable, &wired, &clean, &dirty, max_pages, &shared, FALSE);
 		
 		MEMORYSTATUS_DEBUG(1, "memorystatus_freeze_top_process: task_freeze %s for pid %d [%s] - "
