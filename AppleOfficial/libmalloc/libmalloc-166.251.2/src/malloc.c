@@ -1550,7 +1550,7 @@ malloc_zone_malloc(malloc_zone_t *zone, size_t size)
 	ptr = zone->malloc(zone, size);		// if lite zone is passed in then we still call the lite methods
 
 	
-	if (malloc_logger) {
+	if (malloc_logger) { //helin: use fishhook to hook to monitor malloc behavior
 		malloc_logger(MALLOC_LOG_TYPE_ALLOCATE | MALLOC_LOG_TYPE_HAS_ZONE, (uintptr_t)zone, (uintptr_t)size, 0, (uintptr_t)ptr, 0);
 	}
 
